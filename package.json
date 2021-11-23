@@ -5,5 +5,18 @@
   "main": "index.js",
   "author": "Robert Cato <saiwolf@swmnu.net>",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saiwolf/reg-file-parser"
+  },
+  "keywords": [
+    "registry",
+    "windows-registry",
+    "registry-file"
+  ],
+  "bugs": {
+    "url": "https://github.com/saiwolf/reg-file-parser/issues"
+  },
+  "homepage": "https://github.com/saiwolf/reg-file-parser#readme"
 }
