@@ -119,3 +119,6 @@ dist
 
 # Ignore build dir
 /lib
+
+# Ignore reg test file
+*.reg
