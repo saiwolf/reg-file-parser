@@ -9,9 +9,10 @@
   "private": false,
   "scripts": {
     "build": "yarn run tsc",
+    "clean": "yarn run rimraf ./lib",
     "format": "yarn run prettier --write \"src/**/*.ts\"",
     "lint": "yarn run eslint ./src --ext .ts",
-    "prepare": "yarn run build",
+    "prepare": "npm-run-all clean build",
     "prepublishOnly": "npm-run-all lint format",
     "preversion": "npm-run-all lint format",
     "test": "jest --config jestconfig.json"
@@ -33,6 +34,7 @@
   },
   "homepage": "https://github.com/saiwolf/reg-file-parser#readme",
   "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.3",
     "@types/node": "^16.11.9",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
@@ -40,11 +42,13 @@
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.3.0",
     "jest": "^27.3.1",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.4.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^27.0.7",
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "npm-run-all": "^4.1.5"
+    "fs-extra": "^10.0.0"
   }
 }
