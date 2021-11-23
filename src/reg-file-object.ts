@@ -8,6 +8,8 @@ import {
 
 import * as fs from 'fs-extra';
 import path from 'path';
+import readline from 'readline';
+
 
 /**
  * Interface for a registry file object.
@@ -50,14 +52,16 @@ export class RegFileObject implements IRegFileObject {
         let normalizedContent: Map<string, Map<string, string>> = new Map<string, Map<string, string>>();
         
         const pathName = path.resolve(this.path);
-        fs.readFile(pathName)
-            .then((data) => {
-                this.content = data.toString();
-                this.encoding = GetEncoding(this.content);
+
+        
+        fs.pathExists(pathName)
+            .then(() => {
+                // TODO: Read file
+                this.encoding = GetEncoding(this.content);                
                 normalizedContent = this.ParseFile();
             })
             .catch((err) => {
-                console.error(`Error reading reg file: {${err}}`);
+                throw new Error(`Error reading file: ${err}`);
             });
         
         if (!normalizedContent) {
@@ -100,9 +104,9 @@ export class RegFileObject implements IRegFileObject {
      * @returns A Map with retrieved keys and remaining content.
      */
     private NormalizeKeysDictionary(content: string): Map<string, string> {
-        const regex = new RegExp(/^[\t ]*\\[.+\\][\r\n]+/, "gm");
-        const matches = [...content.matchAll(regex)];
-
+        const regex = new RegExp(/\[(.*?)\]/gm);
+        const matches = Array.from(content.matchAll(regex));
+        
         let startIndex = 0;
         let lengthIndex = 0;
 
@@ -147,8 +151,8 @@ export class RegFileObject implements IRegFileObject {
      * @returns A Map with retrieved keys and remaining content.
      */
     private NormalizeValuesDictionary(content: string): Map<string, string> {
-        const regex = new RegExp(/^[\t ]*(".+"|@)=("[^"]*"|[^"]+)/, "gm");
-        const matches = [...content.matchAll(regex)];        
+        const regex = new RegExp(/(".+"|@)=("[^"]*"|[^"]+)/gm);
+        const matches = Array.from(content.matchAll(regex));
 
         const dictKeys = new Map<string, string>();
 
