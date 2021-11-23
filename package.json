@@ -1,0 +1,9 @@
+{
+  "name": "reg-file-parser",
+  "version": "0.0.1",
+  "description": "A library for parsing Windows Registry export files (.reg).",
+  "main": "index.js",
+  "author": "Robert Cato <saiwolf@swmnu.net>",
+  "license": "MIT",
+  "private": false
+}
