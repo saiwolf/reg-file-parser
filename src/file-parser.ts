@@ -1,9 +1,9 @@
+/* eslint-disable no-useless-escape */
 //import { IRegFileObject, IRegValueObject, RegFileObject, RegValueObject } from ".";
 import lineReader from 'line-reader';
 import fs, { ReadStream } from 'fs';
 import path from 'path';
-import readline from 'readline';
-import { isNull } from 'util';
+import { StripLeadingChars } from '.';
 export interface IRegKey {
     root: string;
     action: 'adding' | 'removing';
@@ -16,14 +16,13 @@ interface IRegValueMap {
     value: string;
 }
 
-export function getFileStream(filePath: string): ReadStream {
+export function getFileContents(filePath: string): string {
     // eslint-disable-next-line no-useless-catch
     try {
         if (filePath) {
             const pathName = path.resolve(filePath);
-            return fs.createReadStream(pathName, {
-                encoding: 'ascii'
-            });
+            const fileData = fs.readFileSync(pathName).toString();
+            return fileData.replace(/[^a-zA-Z0-9\\[\]%\\_="\s.,]+/g, '');
         } else {
             throw new Error('No filePath specified!');
         }
@@ -33,30 +32,70 @@ export function getFileStream(filePath: string): ReadStream {
 };
 
 export async function parseFile(filePath: string) {
-    const stream = getFileStream(filePath);
+    const fileData = getFileContents(filePath);
+    const regKeyValues: IRegKey[] = [];
+    const keys = normalizeKeysDictionary(fileData);
+    if (keys.length > 0) {
+        keys.forEach((key) => {
+            const regKey = getRegKey(key.key);
+            const rootHive = getKeyRoot(regKey);
+            const noRoot = getKeyWithoutRoot(regKey);
+            const parsedValues = normalizeValues(key.value);
+            console.log(parsedValues);
+        });
+    } else {
+        throw new Error('No keys found to process!');
+    }
+}
 
-    lineReader.eachLine(stream, function (line: string) {
-        const pline = line.replace(/[^a-zA-Z0-9\\[\]%\\_="\s.,]+/g, '');
-        const keys: IRegKey[] = [];
-        const rawKey = getRegKey(pline);
-        // if (!rawKey || rawKey === "") { return; }
+function normalizeKeysDictionary(content: string): IRegValueMap[] {
+    const regex = new RegExp(/(\[.+\]\s)([\"\w\d\=\s\,\\\-\.]+)/g);
+    const matches = [...content.matchAll(regex)];
+    const tempHolder: IRegValueMap[] = [];
+    // eslint-disable-next-line no-debugger
+    if (matches !== null) {
+        matches.forEach((match, index) => {
+            let sKey = match[1];
+            if (typeof sKey !== "string") { return; }
+            if (sKey.endsWith("\r\n")) {
+                sKey = sKey.substring(0, sKey.length - 2)
+            }
+            if (sKey.endsWith("=")) { sKey = sKey.substring(0, sKey.length - 1) };
+            if (sKey === "@") {
+                sKey = "";
+            } else {
+                sKey = StripLeadingChars(sKey, "\"");
+            }
 
-        const vals = getKeyValues(pline);
+            const sValue = match[2];
 
-        if (vals !== null) {
-            const key: IRegKey = {
-                root: getKeyRoot(rawKey),
-                action: getKeyAction(rawKey) ? 'removing' : 'adding',
-                keyWithoutRoot: getKeyWithoutRoot(rawKey),
-                values: vals
-            };
+            tempHolder.push({ key: sKey, value: sValue});
+        });       
+    }
 
-            keys.push(key);
-            console.log(keys);
-        }        
-    }, function (err) {
-        if (err) throw err;
-    });
+    return tempHolder;
+}
+
+function normalizeValues(content: string): IRegValueMap[] {
+    const regValues: IRegValueMap[] = [];
+    const regex = new RegExp(/(\".+\")(\=[\w\d\:\s\(\)\,\\]+)/gm);
+    if (!content) { return regValues }
+    const matches = [...content.matchAll(regex)];
+    if (matches !== null) {
+        matches.forEach((match, index) => {
+            let sKey = match[1].trim();
+            let sValue = match[2].trim();
+            if (sKey.startsWith('\"')) { sKey = sKey.substring(1, sKey.length); }
+            if (sKey.endsWith("\"")) { sKey = sKey.substring(0, sKey.length - 1); }
+            if (sValue.startsWith('=')) { sValue = sValue.substring(1, sValue.length); }
+            // sValue = sValue.replace(/\s/g, '');
+            regValues.push({
+                key: sKey,
+                value: sValue,
+            });
+        });
+    }
+    return regValues;
 }
 
 function getRegKey(fileLine: string) {    
@@ -119,20 +158,20 @@ function getKeyAction(key: string): boolean {
     return false;
 }
 
-function getKeyValues(line: string): IRegValueMap[] | null {
-    const regValues: IRegValueMap[] = [];
-    if (line.includes('[HKEY')) { return null; }
-    const lineRegex = new RegExp(/(".+"|@)=(".+")/g);
-    const matches = [...line.matchAll(lineRegex)];
+// function getKeyValues(line: string): IRegValueMap[] | null {
+//     const regValues: IRegValueMap[] = [];
+//     if (line.includes('[HKEY')) { return null; }
+//     const lineRegex = new RegExp(/(".+"|@)=(".+")/g);
+//     const matches = [...line.matchAll(lineRegex)];
 
-    if (matches.length === 0) { return null }
+//     if (matches.length === 0) { return null }
 
-    matches.forEach((match) => {
-        if (match[1] === undefined || match[2] === undefined) { return; }
-        const key = match[1].replace('"', '');
-        const value = match[2].replace('"', '');
-        regValues.push({ key: key, value: value });
-    })
+//     matches.forEach((match) => {
+//         if (match[1] === undefined || match[2] === undefined) { return; }
+//         const key = match[1].replace('"', '');
+//         const value = match[2].replace('"', '');
+//         regValues.push({ key: key, value: value });
+//     })
 
-    return regValues;
-}
+//     return regValues;
+// }
