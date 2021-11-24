@@ -8,7 +8,7 @@ import {
 
 import * as fs from 'fs-extra';
 import path from 'path';
-import readline from 'readline';
+import lineReader from 'line-reader';
 
 
 /**
@@ -53,16 +53,19 @@ export class RegFileObject implements IRegFileObject {
         
         const pathName = path.resolve(this.path);
 
+        if (!fs.existsSync(pathName)) {
+            throw new Error(`File '${path.basename(pathName)}' does not exist.`);
+        };
         
-        fs.pathExists(pathName)
-            .then(() => {
-                // TODO: Read file
-                this.encoding = GetEncoding(this.content);                
-                normalizedContent = this.ParseFile();
-            })
-            .catch((err) => {
-                throw new Error(`Error reading file: ${err}`);
-            });
+        // TODO: Read file
+        const fileData = fs.readFileSync(pathName, {
+            encoding: 'utf-8',
+            flag: 'r',
+        });
+
+        this.content = fileData;
+        this.encoding = GetEncoding(this.content);          
+        normalizedContent = this.ParseFile();
         
         if (!normalizedContent) {
             throw new Error('Error normalizing file content.');
@@ -125,7 +128,7 @@ export class RegFileObject implements IRegFileObject {
                 sKey = StripLeadingChars(sKey, "\"");
             }
 
-            startIndex = index + match.length;
+            startIndex = index + match[1].length;
             const nextMatch = match[index + 1];
             if (nextMatch) {
                 lengthIndex = nextMatch.length - startIndex;
@@ -133,7 +136,7 @@ export class RegFileObject implements IRegFileObject {
                 lengthIndex = content.length - startIndex;
             }
 
-            let sValue: string = content.substring(startIndex, lengthIndex);
+            let sValue: string = content.substring(nextMatch.length, lengthIndex);
 
             while (sValue.endsWith("\r\n")) {
                 sValue = sValue.substring(0, sValue.length - 2);
@@ -151,7 +154,7 @@ export class RegFileObject implements IRegFileObject {
      * @returns A Map with retrieved keys and remaining content.
      */
     private NormalizeValuesDictionary(content: string): Map<string, string> {
-        const regex = new RegExp(/(".+"|@)=("[^"]*"|[^"]+)/gm);
+        const regex = new RegExp(/(".+"|@)=(.*)+/gm);
         const matches = Array.from(content.matchAll(regex));
 
         const dictKeys = new Map<string, string>();

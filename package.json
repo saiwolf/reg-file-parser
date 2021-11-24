@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.3",
+    "@types/line-reader": "^0.0.34",
     "@types/node": "^16.11.9",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
@@ -50,6 +51,7 @@
   },
   "dependencies": {
     "fs-extra": "^10.0.0",
+    "line-reader": "^0.4.0",
     "memory-streams": "^0.1.3"
   }
 }
