@@ -22,7 +22,7 @@ export function getFileContents(filePath: string): string {
         if (filePath) {
             const pathName = path.resolve(filePath);
             const fileData = fs.readFileSync(pathName).toString();
-            return fileData.replace(/[^a-zA-Z0-9\\[\]%\\_="\s.,]+/g, '');
+            return fileData.replace(/[^a-zA-Z0-9\\[\]%\\_=():,"\s.,]+/g, '');
         } else {
             throw new Error('No filePath specified!');
         }
@@ -31,7 +31,7 @@ export function getFileContents(filePath: string): string {
     }
 };
 
-export async function parseFile(filePath: string) {
+export function parseFile(filePath: string) {
     const fileData = getFileContents(filePath);
     const regKeyValues: IRegKey[] = [];
     const keys = normalizeKeysDictionary(fileData);
@@ -41,18 +41,24 @@ export async function parseFile(filePath: string) {
             const rootHive = getKeyRoot(regKey);
             const noRoot = getKeyWithoutRoot(regKey);
             const parsedValues = normalizeValues(key.value);
-            console.log(parsedValues);
+            regKeyValues.push({
+                root: rootHive,
+                action: getKeyAction(regKey) ? 'removing' : 'adding',
+                values: parsedValues,
+                keyWithoutRoot: noRoot,
+            });
         });
     } else {
         throw new Error('No keys found to process!');
     }
+    return regKeyValues;
 }
 
 function normalizeKeysDictionary(content: string): IRegValueMap[] {
-    const regex = new RegExp(/(\[.+\]\s)([\"\w\d\=\s\,\\\-\.]+)/g);
+    const regex = new RegExp(/(\[[\w\^(\\| )\]\r\n]+)([^\[]*)/gm);
     const matches = [...content.matchAll(regex)];
     const tempHolder: IRegValueMap[] = [];
-    // eslint-disable-next-line no-debugger
+    
     if (matches !== null) {
         matches.forEach((match, index) => {
             let sKey = match[1];
@@ -67,7 +73,7 @@ function normalizeKeysDictionary(content: string): IRegValueMap[] {
                 sKey = StripLeadingChars(sKey, "\"");
             }
 
-            const sValue = match[2];
+            const sValue = match[2].trim();
 
             tempHolder.push({ key: sKey, value: sValue});
         });       
@@ -78,17 +84,17 @@ function normalizeKeysDictionary(content: string): IRegValueMap[] {
 
 function normalizeValues(content: string): IRegValueMap[] {
     const regValues: IRegValueMap[] = [];
-    const regex = new RegExp(/(\".+\")(\=[\w\d\:\s\(\)\,\\]+)/gm);
+    const regex = new RegExp(/(?!^\[.+\])(^(\".+\"|@)=(\"[^\"]*\"|[^\"\[]+))/gm);
     if (!content) { return regValues }
     const matches = [...content.matchAll(regex)];
     if (matches !== null) {
         matches.forEach((match, index) => {
-            let sKey = match[1].trim();
-            let sValue = match[2].trim();
+            let sKey = match[2].trim();
+            let sValue = match[3].trim();
             if (sKey.startsWith('\"')) { sKey = sKey.substring(1, sKey.length); }
             if (sKey.endsWith("\"")) { sKey = sKey.substring(0, sKey.length - 1); }
             if (sValue.startsWith('=')) { sValue = sValue.substring(1, sValue.length); }
-            // sValue = sValue.replace(/\s/g, '');
+            //sValue = sValue.split('\r\n').join('');
             regValues.push({
                 key: sKey,
                 value: sValue,

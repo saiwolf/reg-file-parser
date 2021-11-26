@@ -6,7 +6,7 @@ export * from './reg-file-object';
 
 function main() {
     try {        
-        parseFile('./test.reg');
+        console.log(parseFile('./test.reg'));
     } catch (err) {
         console.error(err);
     }
