@@ -1,34 +1,16 @@
 /* eslint-disable no-useless-escape */
-import { StripLeadingChars, RegistryRootHive } from ".";
+import { StripLeadingChars } from "./helpers";
+import { IRegistryFile, IRegKey, RegistryFileEncoding, RegistryKeyAction } from "./reg-file-scheme";
+import { RegistryRootHive, IRegistryValue } from "./reg-value-scheme";
+import { RegValueObject } from "./reg-value-object";
 
 import fs from 'fs';
 import path from 'path';
 
-type RegistryKeyAction = "adding" | "removing";
-
-/**
- * Interface for a registry file object.
- */
-export interface IRegFileObject {
-    path: string,
-    filename: string,
-    encoding: string,
-    content: string,
-    regValues: IRegKey[],
-    parseFile(): IRegFileObject,
-}
-
-export interface IRegKey {
-    root: string;
-    action: RegistryKeyAction;
-    keyWithoutRoot: string;
-    values: IRegValueMap[];
-}
-
 interface IRegValueMap {
     key: string;
     value: string;
-}
+};
 
 /**
  * @implements `IRegFileObject`.
@@ -36,12 +18,12 @@ interface IRegValueMap {
  * Class that encompasses a registry file object with registry values
  * 
  */
-export class RegFileObject implements IRegFileObject {
+export class RegFileObject implements IRegistryFile {
     path: string;
     filename: string;
-    encoding: string;
+    encoding: RegistryFileEncoding;
     content: string;
-    regValues: [];
+    regValues: IRegKey[];
 
     constructor(regFileName: string) {
         this.path = regFileName;
@@ -66,7 +48,7 @@ export class RegFileObject implements IRegFileObject {
         }
     };
     
-    public parseFile(): IRegFileObject {
+    public parseFile(): IRegistryFile {
         this.content = this.getFileContents(this.path);
         const regKeyValues: IRegKey[] = [];
         const keys = this.normalizeKeysDictionary(this.content);
@@ -75,18 +57,13 @@ export class RegFileObject implements IRegFileObject {
                 const regKey = this.getRegKey(key.key);
                 const rootHive = this.getKeyRoot(regKey);
                 const noRoot = this.getKeyWithoutRoot(regKey);
-                const parsedValues = this.normalizeValues(key.value);
-                regKeyValues.push({
-                    root: rootHive,
-                    action: this.getKeyAction(regKey),
-                    values: parsedValues,
-                    keyWithoutRoot: noRoot,
-                });
+                const parsedValues = this.normalizeValues(key.value, regKey);
+                regKeyValues.push();
             });
         } else {
             throw new Error('No keys found to process!');
         }
-        const fileObject: IRegFileObject = new RegFileObject(this.path);
+        const fileObject: IRegistryFile = new RegFileObject(this.path);
         fileObject.regValues = regKeyValues;
         return fileObject;
     }
@@ -119,8 +96,8 @@ export class RegFileObject implements IRegFileObject {
         return tempHolder;
     }
     
-    private normalizeValues(content: string): IRegValueMap[] {
-        const regValues: IRegValueMap[] = [];
+    private normalizeValues(content: string, parentKey: string): IRegistryValue[] {
+        const regValues: IRegistryValue[] = [];
         const regex = new RegExp(/(?!^\[.+\])(^(\".+\"|@)=(\"[^\"]*\"|[^\"\[]+))/gm);
         if (!content) { return regValues }
         const matches = [...content.matchAll(regex)];
@@ -132,10 +109,12 @@ export class RegFileObject implements IRegFileObject {
                 if (sKey.endsWith("\"")) { sKey = sKey.substring(0, sKey.length - 1); }
                 if (sValue.startsWith('=')) { sValue = sValue.substring(1, sValue.length); }
                 sValue = sValue.split('\r\n').join('');
-                regValues.push({
-                    key: sKey,
-                    value: sValue,
-                });
+                regValues.push(new RegValueObject(
+                    parentKey,
+                    sKey,
+                    sValue,
+                    "UTF8",
+                ));
             });
         }
         return regValues;
@@ -196,8 +175,8 @@ export class RegFileObject implements IRegFileObject {
     }
     
     private getKeyAction(key: string): RegistryKeyAction {
-        if (!key) { return 'adding'; }
-        if (key.startsWith('-')) { return 'removing'; }
-        return 'adding';
+        if (!key) { return 'import'; }
+        if (key.startsWith('-')) { return 'delete'; }
+        return 'import';
     }
 }

@@ -15,7 +15,8 @@
     "prepare": "npm-run-all clean build",
     "prepublishOnly": "npm-run-all lint format",
     "preversion": "npm-run-all lint format",
-    "test": "jest --config jestconfig.json"
+    "test-cmd": "cross-env NODE_ENV=development node ./lib/tests/test.js",
+    "test": "npm-run-all clean build test-cmd"
   },
   "repository": {
     "type": "git",
@@ -40,6 +41,7 @@
     "@types/node": "^16.11.9",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.3.0",
     "jest": "^27.3.1",
@@ -49,9 +51,5 @@
     "ts-jest": "^27.0.7",
     "typescript": "^4.5.2"
   },
-  "dependencies": {
-    "fs-extra": "^10.0.0",
-    "line-reader": "^0.4.0",
-    "memory-streams": "^0.1.3"
-  }
+  "dependencies": {}
 }
