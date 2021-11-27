@@ -1,8 +1,10 @@
 /* eslint-disable no-useless-escape */
-import { StripLeadingChars } from ".";
+import { StripLeadingChars, RegistryRootHive } from ".";
 
 import fs from 'fs';
 import path from 'path';
+
+type RegistryKeyAction = "adding" | "removing";
 
 /**
  * Interface for a registry file object.
@@ -18,7 +20,7 @@ export interface IRegFileObject {
 
 export interface IRegKey {
     root: string;
-    action: 'adding' | 'removing';
+    action: RegistryKeyAction;
     keyWithoutRoot: string;
     values: IRegValueMap[];
 }
@@ -76,7 +78,7 @@ export class RegFileObject implements IRegFileObject {
                 const parsedValues = this.normalizeValues(key.value);
                 regKeyValues.push({
                     root: rootHive,
-                    action: this.getKeyAction(regKey) ? 'removing' : 'adding',
+                    action: this.getKeyAction(regKey),
                     values: parsedValues,
                     keyWithoutRoot: noRoot,
                 });
@@ -129,7 +131,7 @@ export class RegFileObject implements IRegFileObject {
                 if (sKey.startsWith('\"')) { sKey = sKey.substring(1, sKey.length); }
                 if (sKey.endsWith("\"")) { sKey = sKey.substring(0, sKey.length - 1); }
                 if (sValue.startsWith('=')) { sValue = sValue.substring(1, sValue.length); }
-                //sValue = sValue.split('\r\n').join('');
+                sValue = sValue.split('\r\n').join('');
                 regValues.push({
                     key: sKey,
                     value: sValue,
@@ -149,20 +151,20 @@ export class RegFileObject implements IRegFileObject {
         return fileLine.substring(startingBracket, endingBracket);
     }
     
-    private getKeyRoot(key: string) {
-        if (!key) return "";
+    private getKeyRoot(key: string): RegistryRootHive {
+        if (!key) return RegistryRootHive.UNKNOWN;
         if (key.startsWith("HKEY_LOCAL_MACHINE")) {        
-            return "HKEY_LOCAL_MACHINE";
+            return RegistryRootHive.HKLM;
         } else if (key.startsWith("HKEY_CLASSES_ROOT")) {
-            return "HKEY_CLASSES_ROOT";
+            return RegistryRootHive.HKCR;
         } else if (key.startsWith("HKEY_USERS")) {
-            return "HKEY_USERS";
+            return RegistryRootHive.HKU;
         } else if (key.startsWith("HKEY_CURRENT_CONFIG")) {
-            return "HKEY_CURRENT_CONFIG";
+            return RegistryRootHive.HKCC;
         } else if (key.startsWith("HKEY_CURRENT_USER")) {
-            return "HKEY_CURRENT_USER";
+            return RegistryRootHive.HKCU;
         } else {
-            return "";
+            return RegistryRootHive.UNKNOWN;
         }
     }
     
@@ -193,9 +195,9 @@ export class RegFileObject implements IRegFileObject {
         }
     }
     
-    private getKeyAction(key: string): boolean {
-        if (!key) { return false; }
-        if (key.startsWith('-')) { return true; }
-        return false;
+    private getKeyAction(key: string): RegistryKeyAction {
+        if (!key) { return 'adding'; }
+        if (key.startsWith('-')) { return 'removing'; }
+        return 'adding';
     }
 }
