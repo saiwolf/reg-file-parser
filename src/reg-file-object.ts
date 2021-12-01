@@ -7,16 +7,21 @@ import { RegValueObject } from "./reg-value-object";
 import fs from 'fs';
 import path from 'path';
 
-interface IRegValueMap {
+/**
+ * Basic mapping of a key to a value.
+ * 
+ * @interface IRegValueMap
+ */
+export interface IRegValueMap {
     key: string;
     value: string;
 };
 
 /**
- * @implements `IRegFileObject`.
- * 
  * Class that encompasses a registry file object with registry values
  * 
+ * @class
+ * @implements {IRegistryFile}. 
  */
 export class RegFileObject implements IRegistryFile {
     path: string;
@@ -25,6 +30,10 @@ export class RegFileObject implements IRegistryFile {
     content: string;
     regValues: IRegKey[];
 
+    /**
+     * @constructor
+     * @param regFileName The registry file to parse
+     */
     constructor(regFileName: string) {
         this.path = regFileName;
         this.filename = path.basename(this.path);
@@ -35,6 +44,13 @@ export class RegFileObject implements IRegistryFile {
         this.parseFile();
     }
 
+    /**
+     * Gets the contents of the passed file.
+     * 
+     * @function
+     * @param filePath File to open
+     * @returns A string representing contents of the file.
+     */
     private getFileContents(filePath: string): string {
         // eslint-disable-next-line no-useless-catch
         try {
@@ -50,6 +66,11 @@ export class RegFileObject implements IRegistryFile {
         }
     };
     
+    /**
+     * Parses the registry file supplied in the constructor.
+     * 
+     * @function
+     */
     public parseFile(): void {
         this.content = this.getFileContents(this.path);
         const regKeyValues: IRegKey[] = [];
@@ -73,6 +94,13 @@ export class RegFileObject implements IRegistryFile {
         this.regValues = regKeyValues;        
     }
     
+    /**
+     * Parses registry key and values into array.
+     * 
+     * @function
+     * @param content String of file contents to parse for key/values
+     * @returns `IRegValueMap` of Registry Keys and their values.
+     */
     private normalizeKeysDictionary(content: string): IRegValueMap[] {
         const regex = new RegExp(/(\[[\w\%\^(\\| )\]\r\n]+)([^\[]*)/gm);
         const matches = [...content.matchAll(regex)];
@@ -101,6 +129,14 @@ export class RegFileObject implements IRegistryFile {
         return tempHolder;
     }
     
+    /**
+     * Parses Values entry into data:value array.
+     * 
+     * @function
+     * @param content Values entry from `normalizeKeys` function.
+     * @param parentKey Parent key these values belong to.
+     * @returns Parsed values in separate key/value array.
+     */
     private normalizeValues(content: string, parentKey: string): IRegistryValue[] {
         const regValues: IRegistryValue[] = [];
         const regex = new RegExp(/(?!^\[.+\])(^(\".+\"|@)=(\"[^\"]*\"|[^\"\[]+))/gm);
@@ -125,6 +161,13 @@ export class RegFileObject implements IRegistryFile {
         return regValues;
     }
     
+    /**
+     * Strips brackets and returns Registry Key.
+     * 
+     * @function
+     * @param fileLine Registry Key to parse
+     * @returns Registry key stripped of the `[` and `]` characters
+     */
     private getRegKey(fileLine: string) {    
         if (!fileLine) return "";
         if (!fileLine.includes('[HKEY')) { return ""; }
@@ -135,6 +178,13 @@ export class RegFileObject implements IRegistryFile {
         return fileLine.substring(startingBracket, endingBracket);
     }
     
+    /**
+     * Parses the Hive of the passed registry key
+     * 
+     * @function
+     * @param key Registry Key to parse
+     * @returns Root Hive of passed Key
+     */
     private getKeyRoot(key: string): RegistryRootHive {
         if (!key) return RegistryRootHive.UNKNOWN;
         if (key.startsWith("HKEY_LOCAL_MACHINE")) {        
@@ -152,6 +202,13 @@ export class RegFileObject implements IRegistryFile {
         }
     }
     
+    /**
+     * Strips off the registry hive from the passed key.
+     * 
+     * @function
+     * @param key Registry key to parse
+     * @returns Registry key stripped of the root hive.
+     */
     private getKeyWithoutRoot(key: string) {
         if (!key) return "";
         if (key.startsWith("HKEY_LOCAL_MACHINE")) {
@@ -179,6 +236,14 @@ export class RegFileObject implements IRegistryFile {
         }
     }
     
+    /**
+     * Determines if registry key is importing data or removing data
+     * from the registry.
+     * 
+     * @function
+     * @param key Registry key to parse
+     * @returns Action taken by key.
+     */
     private getKeyAction(key: string): RegistryKeyAction {
         if (!key) { return 'import'; }
         if (key.startsWith('-')) { return 'delete'; }

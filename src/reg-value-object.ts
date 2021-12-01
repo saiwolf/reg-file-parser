@@ -10,7 +10,8 @@ import { IRegistryValue, RegistryRootHive, RegistryValueType } from './reg-value
  * Represents a registry value object with corresponding
  * properties.
  * 
- * @implements `IRegistryValue`
+ * @class
+ * @implements {IRegistryValue}
  */
 export class RegValueObject implements IRegistryValue {
     root: RegistryRootHive;
@@ -21,6 +22,14 @@ export class RegValueObject implements IRegistryValue {
     type: RegistryValueType;
     encoding: string;
 
+    /**
+     * 
+     * @constructor
+     * @param regKeyName The key name: [HKEY_etc]
+     * @param regValueName The data entry name. To left of the '='
+     * @param regValueData The data value. To the right of the '='
+     * @param encoding The encoding.
+     */
     constructor(
         regKeyName: string,
         regValueName: string,
@@ -38,6 +47,7 @@ export class RegValueObject implements IRegistryValue {
     }
 
     /**
+     * @override
      * @returns An entry for the [Registry] section of the *.sig signature file.
      */
     public toString() {
@@ -46,6 +56,8 @@ export class RegValueObject implements IRegistryValue {
 
     /**
      * Trims the registry root from `this.parentKey` and returns the root used.
+     * 
+     * @function
      * @returns Enum value of `RegistryRootHive` matching the root key in `this.parentKey`.
      */
     private GetRootHive(): RegistryRootHive {
@@ -83,6 +95,8 @@ export class RegValueObject implements IRegistryValue {
 
     /**
      * Trims `this.value` of the value's data type and returns said value type.
+     * 
+     * @function
      * @param regValueData The string representation of the registry type.
      * @returns `RegistryValueType` member matching `regValueData`
      */
@@ -127,6 +141,8 @@ export class RegValueObject implements IRegistryValue {
 
     /**
      * Maps a Registry data type to a Registry value type.
+     * 
+     * @function
      * @param sRegDataType Registry data type to parse.
      * @returns Matching Registry value type.
      */

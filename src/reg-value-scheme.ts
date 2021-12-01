@@ -2,6 +2,8 @@
  * Enum describing the root keys of the Windows Registry.
  * 
  * Information provided by: https://en.wikipedia.org/wiki/Windows_Registry#Root_keys
+ * 
+ * @enum
  */
  export enum RegistryRootHive {
     /**
@@ -59,6 +61,8 @@
  * describes those types.
  * 
  * Type definitions come from: https://docs.microsoft.com/en-us/windows/win32/sysinfo/registry-value-types
+ * 
+ * @enum
  */
  export enum RegistryValueType {
     /**
@@ -139,6 +143,8 @@
 
 /**
  * Interface that defines a registry value object.
+ * 
+ * @interface IRegistryValue
  */
 export interface IRegistryValue {
     /** The root hive. Ex: `HKLM` */
