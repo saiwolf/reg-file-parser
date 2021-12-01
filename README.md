@@ -47,6 +47,12 @@ const result = new RegFileObject('./relative/path/to/file.reg');
 ```
 
 > All interfaces are public. You can use them to type your code as needed.
+
+# Docs
+Docs are generated with [TypeDoc](https://typedoc.org/)
+
+https://saiwolf.github.io/reg-file-parser/
+
 # Author
 
 👤 **Robert Cato <saiwolf@swmnu.net>**
