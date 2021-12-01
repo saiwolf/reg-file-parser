@@ -12,39 +12,57 @@
   </a>
 </p>
 
-> A library for parsing Windows Registry export files (.reg).
+# What is this?
 
-### 🏠 [Homepage](https://github.com/saiwolf/reg-file-parser#readme)
+> A library written in typescript that parses Windows Regisry export files (.reg). 
 
-## Add to your project
+This project started life as a direct porting of [Henryk Filipowicz's Registry Export File Parser](https://www.codeproject.com/Tips/125573/Registry-Export-File-reg-Parser) which is written in C#; but it has evolved since; though the principals remain the same.
 
-### npm
+# Add to your project
+## npm
 ```sh
 npm install reg-file-parser
 ```
-
-### yarn
+## yarn
 
 ```sh
 yarn add reg-file-parser
 ```
+# Quickstart
+## Parse a registry file
 
-## Author
+```js
+// CommonJS
+const regParser = require('reg-file-parser');
+const result = new regParser.RegFileObject('./relative/path/to/file.reg');
+// do something with `result`
+```
+
+```js
+// ESModule
+import { RegFileObject} from 'reg-file-parser';
+
+const result = new RegFileObject('./relative/path/to/file.reg');
+// do something with `result`
+```
+
+> All interfaces are public. You can use them to type your code as needed.
+# Author
 
 👤 **Robert Cato <saiwolf@swmnu.net>**
 
 * Website: https://keybase.io/saiwolf
 * Github: [@saiwolf](https://github.com/saiwolf)
 
-## 🤝 Contributing
+# 🤝 Contributing
 
 Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/saiwolf/reg-file-parser/issues). You can also take a look at the [contributing guide](https://github.com/saiwolf/reg-file-parser/blob/master/CONTRIBUTING.md).
 
-## Show your support
+# Show your support
 
 Give a ⭐️ if this project helped you!
 
-## 📝 License
+# 📝 License
 
 Copyright © 2021 [Robert Cato <saiwolf@swmnu.net>](https://github.com/saiwolf).<br />
 This project is [MIT](https://github.com/saiwolf/reg-file-parser/blob/master/LICENSE) licensed.

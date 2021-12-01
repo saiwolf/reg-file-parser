@@ -108,6 +108,7 @@
   ],
   "typedocOptions": {
     "entryPoints": ["./src/index.ts"],
-    "out": "./docs"
+    "out": "./docs",
+    "readme": "./README.md"
   }
 }
