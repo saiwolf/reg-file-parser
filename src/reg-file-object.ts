@@ -31,6 +31,8 @@ export class RegFileObject implements IRegistryFile {
         this.encoding = "UTF8";
         this.regValues = [];
         this.content = "";
+
+        this.parseFile();
     }
 
     private getFileContents(filePath: string): string {
@@ -48,7 +50,7 @@ export class RegFileObject implements IRegistryFile {
         }
     };
     
-    public parseFile(): IRegistryFile {
+    public parseFile(): void {
         this.content = this.getFileContents(this.path);
         const regKeyValues: IRegKey[] = [];
         const keys = this.normalizeKeysDictionary(this.content);
@@ -58,14 +60,17 @@ export class RegFileObject implements IRegistryFile {
                 const rootHive = this.getKeyRoot(regKey);
                 const noRoot = this.getKeyWithoutRoot(regKey);
                 const parsedValues = this.normalizeValues(key.value, regKey);
-                regKeyValues.push();
+                regKeyValues.push({
+                    root: rootHive,
+                    action: this.getKeyAction(regKey),
+                    values: parsedValues,
+                    keyWithoutRoot: noRoot,
+                });
             });
         } else {
             throw new Error('No keys found to process!');
-        }
-        const fileObject: IRegistryFile = new RegFileObject(this.path);
-        fileObject.regValues = regKeyValues;
-        return fileObject;
+        }        
+        this.regValues = regKeyValues;        
     }
     
     private normalizeKeysDictionary(content: string): IRegValueMap[] {
