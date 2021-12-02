@@ -3,12 +3,12 @@
  * @returns The text encoding of the .reg file.
  */
 export function GetEncoding(content: string): string {
-    const regex = new RegExp(/([ ]*(\r\n)*)REGEDIT4/, "is");
-    if (regex.test(content)) {
-        return "ANSI";
-    } else {
-        return "UTF8";
-    }
+  const regex = new RegExp(/([ ]*(\r\n)*)REGEDIT4/, 'is');
+  if (regex.test(content)) {
+    return 'ANSI';
+  } else {
+    return 'UTF8';
+  }
 }
 
 /**
@@ -18,32 +18,32 @@ export function GetEncoding(content: string): string {
  * @returns String value
  */
 export function GetStringRepresentation(stringArray: string[], encoding: string): string {
-    let sb = "";
-    if (stringArray.length > 1) {
-        if (encoding === "UTF8") {
-            for (let i = 0; i < stringArray.length - 2; i += 2) {
-                const tmpCharacter = stringArray[i + 1] + stringArray[i];
-                if (tmpCharacter === "0000") {
-                    sb = sb + "\n";
-                } else {
-                    sb = sb + parseInt(tmpCharacter, 16).toString();
-                }
-            }
+  let sb = '';
+  if (stringArray.length > 1) {
+    if (encoding === 'UTF8') {
+      for (let i = 0; i < stringArray.length - 2; i += 2) {
+        const tmpCharacter = stringArray[i + 1] + stringArray[i];
+        if (tmpCharacter === '0000') {
+          sb = sb + '\n';
         } else {
-            for (let j = 0; j < stringArray.length - 1; j += 1) {                    
-                if (stringArray[j] === "00") {
-                    sb = sb + "\n";
-                } else {
-                    sb = sb + parseInt(stringArray[j], 16).toString();
-                }
-            }
+          sb = sb + parseInt(tmpCharacter, 16).toString();
         }
-        return sb;
+      }
     } else {
-        return "";
+      for (let j = 0; j < stringArray.length - 1; j += 1) {
+        if (stringArray[j] === '00') {
+          sb = sb + '\n';
+        } else {
+          sb = sb + parseInt(stringArray[j], 16).toString();
+        }
+      }
     }
+    return sb;
+  } else {
+    return '';
+  }
 }
-    
+
 /**
  * Removes the leading and ending characters from the given string
  * @param sLine Given string
@@ -51,11 +51,11 @@ export function GetStringRepresentation(stringArray: string[], encoding: string)
  * @returns Stripped string
  */
 export function StripLeadingChars(sLine: string, leadChar: string): string {
-    const tmpValue = sLine.trim();
-    if (tmpValue.startsWith(leadChar) && tmpValue.endsWith(leadChar)) {
-        return tmpValue.substring(1, tmpValue.length - 2);
-    }
-    return tmpValue;
+  const tmpValue = sLine.trim();
+  if (tmpValue.startsWith(leadChar) && tmpValue.endsWith(leadChar)) {
+    return tmpValue.substring(1, tmpValue.length - 2);
+  }
+  return tmpValue;
 }
 
 /**
@@ -64,11 +64,11 @@ export function StripLeadingChars(sLine: string, leadChar: string): string {
  * @returns Stripped string
  */
 export function StripBraces(sLine: string): string {
-    const tmpValue = sLine.trim();
-    if (tmpValue.startsWith("[") && tmpValue.endsWith("]")) {
-        return tmpValue.substring(1, tmpValue.length - 2);
-    }
-    return tmpValue;
+  const tmpValue = sLine.trim();
+  if (tmpValue.startsWith('[') && tmpValue.endsWith(']')) {
+    return tmpValue.substring(1, tmpValue.length - 2);
+  }
+  return tmpValue;
 }
 
 /**
@@ -77,6 +77,6 @@ export function StripBraces(sLine: string): string {
  * @returns Stripped string
  */
 export function StripContinueChar(sLine: string): string {
-    const regex = /\\\r\n[ ]*/;
-    return sLine.replace(regex, '');
+  const regex = /\\\r\n[ ]*/;
+  return sLine.replace(regex, '');
 }
