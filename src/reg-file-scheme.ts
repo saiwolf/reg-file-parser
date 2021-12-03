@@ -17,7 +17,7 @@ export type RegistryFileEncoding = 'ANSI' | 'UTF8';
  * @interface IRegistryFile
  */
 export interface IRegistryFile {
-  /** The .reg file path. */
+  /** The .reg file path. This can be a string of the file path or a Buffer containing the file contents. */
   path: string | Buffer;
   /** The .reg file name. */
   filename: string;
