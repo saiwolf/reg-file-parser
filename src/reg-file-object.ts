@@ -42,7 +42,7 @@ export class RegFileObject implements IRegistryFile {
     this.content = '';
 
     this.parseFile();
-  };
+  }
 
   /**
    * Gets the contents of the passed file.
@@ -61,7 +61,7 @@ export class RegFileObject implements IRegistryFile {
         } else {
           const pathName = path.resolve(filePath);
           const fileData = fs.readFileSync(pathName).toString();
-          return fileData.replace(/[^a-zA-Z0-9\\[\]%\\_=():,"\s.,]+/g, '');          
+          return fileData.replace(/[^a-zA-Z0-9\\[\]%\\_=():,"\s.,]+/g, '');
         }
       } else {
         throw new Error('No filePath specified!');
