@@ -100,7 +100,7 @@
   },
   "include": [
     "./src"
-, "__tests__/reg-file-object.test.ts"  ],
+, "__tests__/export-parse.test.ts"  ],
   "exclude": [
     "/node_modules/",
     "**/__tests__/*",
