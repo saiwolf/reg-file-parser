@@ -1,8 +1,9 @@
+import { RegistryFileEncoding } from "./reg-file-scheme";
 /**
  * Retrieves the encoding of the reg file, checking for "REGEDIT4".
  * @returns The text encoding of the .reg file.
  */
-export function GetEncoding(content: string): string {
+export function GetEncoding(content: string): RegistryFileEncoding {
   const regex = new RegExp(/([ ]*(\r\n)*)REGEDIT4/, 'is');
   if (regex.test(content)) {
     return 'ANSI';

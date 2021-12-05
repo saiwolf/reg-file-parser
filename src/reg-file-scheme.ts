@@ -14,13 +14,9 @@ export type RegistryFileEncoding = 'ANSI' | 'UTF8';
 /**
  * Interface for a registry file object.
  *
- * @interface IRegistryFile
+ * @interface IRegistryExport
  */
-export interface IRegistryFile {
-  /** The .reg file path. This can be a string of the file path or a Buffer containing the file contents. */
-  path: string | Buffer;
-  /** The .reg file name. */
-  filename: string;
+export interface IRegistryExport {
   /**
    * A registry file can either be in ANSI or Unicode format.
    *
