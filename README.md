@@ -14,7 +14,7 @@
 
 # What is this?
 
-> A library written in typescript that parses Windows Regisry export files (.reg). 
+> A library written in typescript that parses Windows Registry export files (.reg). 
 
 This project started life as a direct porting of [Henryk Filipowicz's Registry Export File Parser](https://www.codeproject.com/Tips/125573/Registry-Export-File-reg-Parser) which is written in C#; but it has evolved since; though the principals remain the same.
 
