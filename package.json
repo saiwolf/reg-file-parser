@@ -8,14 +8,14 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "yarn run tsc",
-    "clean": "yarn run rimraf ./lib",
-    "format": "yarn run prettier --write \"src/**/*.ts\"",
-    "lint": "yarn run eslint ./src --ext .ts",
+    "build": "tsc",
+    "clean": "rimraf ./lib",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint ./src --ext .ts",
     "prepare": "npm-run-all clean build",
     "prepublishOnly": "npm-run-all lint format",
     "preversion": "npm-run-all lint format",
-    "test": "yarn run jest"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
