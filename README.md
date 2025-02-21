@@ -34,15 +34,15 @@ yarn add reg-file-parser
 ```js
 // CommonJS
 const regParser = require('reg-file-parser');
-const result = new regParser.RegFileObject('./relative/path/to/file.reg');
+const result = regParser.parse('./relative/path/to/file.reg');
 // do something with `result`
 ```
 
 ```js
 // ESModule
-import { RegFileObject} from 'reg-file-parser';
+import { parse } from 'reg-file-parser';
 
-const result = new RegFileObject('./relative/path/to/file.reg');
+const result = parse('./relative/path/to/file.reg');
 // do something with `result`
 ```
 

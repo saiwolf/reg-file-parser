@@ -1,4 +1,4 @@
-import parse from '../src/reg-file-object';
+import { parse } from '../src/reg-file-object';
 import { IRegistryExport } from '../src/reg-file-scheme';
 
 const registryContent = `Windows Registry Editor Version 5.00
