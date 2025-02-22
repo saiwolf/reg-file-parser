@@ -1,7 +1,7 @@
 import { GetEncoding, StripLeadingChars } from './helpers';
 import { IRegistryExport, IRegKey, RegistryKeyAction } from './reg-file-scheme';
 import { RegistryRootHive, IRegistryValue } from './reg-value-scheme';
-import  parseRegistryValues from './reg-value-object';
+import { parseRegistryValues } from './reg-value-object';
 /**
  * Basic mapping of a key to a value.
  *
@@ -37,7 +37,7 @@ export function prepareContent(content: string): string {
  * @param content - The registry export file in string format.
  * @returns An {@link IRegistryExport} object containing parsed keys, values, and data.
  */
-export default function parse(content: string): IRegistryExport {
+export function parse(content: string): IRegistryExport {
   const data = prepareContent(content);
   const regKeyValues: IRegKey[] = [];
   const keys = normalizeKeysDictionary(data);

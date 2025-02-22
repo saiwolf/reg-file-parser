@@ -14,7 +14,7 @@ import { IRegistryValue, RegistryRootHive, RegistryValueType } from './reg-value
  *
  * @returns A constructed value that implements {@link IRegistryValue}
  */
-export default function parseRegistryValues(
+export function parseRegistryValues(
   regKeyName: string,
   regValueName: string,
   regValueData: string,
